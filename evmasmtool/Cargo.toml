@@ -1,0 +1,10 @@
+[package]
+name = "evmcodegen"
+version = "0.1.0"
+authors = ["adria0 <adria@codecontext.io>"]
+edition = "2018"
+
+[dependencies]
+
+[dev-dependencies]
+hex = "0.4.2"
