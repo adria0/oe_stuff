@@ -13,7 +13,7 @@ reserved_only = false
 
 [rpc]
 disable = false
-port = 8501
+port = 8545
 interface = "all"
 cors = ["all"]
 apis = ["web3", "eth", "pubsub", "net", "parity", "parity_set", "parity_pubsub", "rpc", "personal"]
@@ -21,7 +21,7 @@ hosts = ["all"]
 
 [websockets]
 disable = false
-port = 8502
+port = 8546
 interface = "all"
 apis = ["web3", "eth", "pubsub", "net", "parity", "parity_set", "parity_pubsub", "rpc"]
 hosts = ["all"]
