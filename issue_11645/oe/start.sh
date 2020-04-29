@@ -19,13 +19,13 @@ echo ====================================
 echo ======= PRESS ENTER TO STOP ========
 echo ====================================
 
-$OE --identity=node1 --base-path=node1 --port=30303 --jsonrpc-port=8545 --ws-port=9000 --unlock=55f1191d5e195cd50a67b30bdfc3a47b1b19cde3 --engine-signer=55f1191d5e195cd50a67b30bdfc3a47b1b19cde3 $PARAMS 2>&1 |(sed 's/^/[1] /') &
+$OE --identity=node1 --base-path=node1 --port=30303 --unlock=55f1191d5e195cd50a67b30bdfc3a47b1b19cde3 --engine-signer=55f1191d5e195cd50a67b30bdfc3a47b1b19cde3 $PARAMS 2>&1 |(sed 's/^/[1] /') &
 NODE1PID=$!
 
-$OE --identity=node2 --base-path=node2 --port=30304 --jsonrpc-port=8546 --ws-port=9001 --unlock=73b1e510fafefc83fb5738d3314f78731aad1f37 --engine-signer=73b1e510fafefc83fb5738d3314f78731aad1f37 $PARAMS 2>&1 |(sed 's/^/[2] /') & 
+$OE --identity=node2 --base-path=node2 --port=30304 --unlock=73b1e510fafefc83fb5738d3314f78731aad1f37 --engine-signer=73b1e510fafefc83fb5738d3314f78731aad1f37 $PARAMS 2>&1 |(sed 's/^/[2] /') & 
 NODE2PID=$!
 
-$OE --identity=node3 --base-path=node3 --port=30305 --jsonrpc-port=8547 --ws-port=9002 --unlock=a65be5e25b8763584c8e16070500bb55dfc92dba --engine-signer=a65be5e25b8763584c8e16070500bb55dfc92dba -$PARAMS 2>&1 |(sed 's/^/[3] /') &
+$OE --identity=node3 --base-path=node3 --port=30305 --unlock=a65be5e25b8763584c8e16070500bb55dfc92dba --engine-signer=a65be5e25b8763584c8e16070500bb55dfc92dba -$PARAMS 2>&1 |(sed 's/^/[3] /') &
 NODE3PID=$!
 
 read x

@@ -1,0 +1,63 @@
+[parity]
+chain = "./chain.json"
+mode = "active"
+auto_update_delay = 1000
+auto_update_check_frequency = 1000
+release_track = "stable"
+
+[network]
+port = 30303
+discovery = true
+allow_ips = "all"
+reserved_only = false
+
+[rpc]
+disable = true
+
+[websockets]
+disable = true
+
+[ipc]
+disable = false
+apis = ["web3", "eth", "pubsub", "net", "parity", "parity_pubsub", "rpc"]
+
+[dapps]
+disable = true
+
+[secretstore]
+disable = true
+
+[mining]
+force_sealing = true
+reseal_on_txs = "all"
+reseal_min_period = 700
+reseal_max_period = 900
+work_queue_size = 1024
+relay_set = "strict"
+usd_per_tx = "0"
+usd_per_eth = "0"
+price_update_period = "hourly"
+gas_floor_target = "0x4000000"
+gas_cap = "0"
+tx_queue_size = 16384
+tx_queue_per_sender = 4096
+tx_queue_mem_limit = 0
+tx_gas_limit = "0x4000000"
+tx_time_limit = 500
+
+[footprint]
+tracing = "auto"
+pruning = "auto"
+pruning_history = 128
+pruning_memory = 64
+cache_size_db = 1024
+cache_size_blocks = 64
+cache_size_queue = 256
+cache_size_state = 256
+db_compaction = "ssd"
+fat_db = "auto"
+scale_verifiers = true
+num_verifiers = 2
+
+[snapshots]
+disable_periodic = false
