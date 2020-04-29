@@ -1,0 +1,7 @@
+#/bin/bash
+
+rm -rf node1/cache node1/chains
+rm -rf node2/cache node2/chains
+rm -rf node3/cache node3/chains
+
+

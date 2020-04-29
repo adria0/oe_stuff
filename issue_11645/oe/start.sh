@@ -8,10 +8,6 @@ BOOTNODES="enode://14b3f9ff18928230ec35bc0938ee8a0f6d29cfa1172e385995a47db6528f9
 CONFIG="--chain=chain.json --config=authority.toml --password ./password.txt --bootnodes $BOOTNODES"  
 PARAMS="$CONFIG" 
 
-rm -rf node1/cache node1/chains
-rm -rf node2/cache node2/chains
-rm -rf node3/cache node3/chains
-
 echo ====================================
 echo `$OE --version`
 echo ====================================
