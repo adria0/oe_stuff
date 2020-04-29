@@ -17,7 +17,7 @@ echo ====================================
 echo ======= PRESS ENTER TO STOP ========
 echo ====================================
 
-$OE --identity=node4 --base-path=node4 --port=30305 --unlock=0xcfa3ae1840e38d1e54b0ef6300d6e91b22964a75 $PARAMS 2>&1 |(sed 's/^/[1] /') &
+$OE --identity=node4 --base-path=node4 --port=30306 --unlock=0xcfa3ae1840e38d1e54b0ef6300d6e91b22964a75 $PARAMS 2>&1 |(sed 's/^/[1] /') &
 NODE4PID=$!
 
 read x
