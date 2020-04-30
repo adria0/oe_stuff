@@ -1,7 +1,7 @@
 #/bin/bash
 
-rm -rf node1/cache node1/chains
-rm -rf node2/cache node2/chains
-rm -rf node3/cache node3/chains
-
+rm -rf node1
+rm -rf node2
+rm -rf node3
+tar xzf data.tgz
 
