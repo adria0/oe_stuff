@@ -18,6 +18,7 @@ interface = "all"
 cors = ["all"]
 apis = ["web3", "eth", "pubsub", "net", "parity", "parity_set", "parity_pubsub", "rpc", "personal"]
 hosts = ["all"]
+allow_missing_blocks = true
 
 [websockets]
 disable = false

@@ -25,8 +25,14 @@
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
 
+const net = require('net');
+const Web3 = require("web3");
 const HDWalletProvider = require('@truffle/hdwallet-provider');
-const provider = new HDWalletProvider("b8cce89a80adce69775a568677ade40be0c5b3061fcb866aa09ba1b0261a24bc", "http://localhost:8545");
+
+const provider    = new Web3.providers.HttpProvider("http://localhost:8545");
+const hdProvider  = new HDWalletProvider("b8cce89a80adce69775a568677ade40be0c5b3061fcb866aa09ba1b0261a24bc", "http://localhost:8545");
+const wsProvider  = new Web3.providers.WebsocketProvider("ws://localhost:8546");
+const ipcProvider = new Web3.providers.IpcProvider('../oe/node4/jsonrpc.ipc', net);
 
 module.exports = {
   /**
@@ -75,7 +81,10 @@ module.exports = {
 
     // Useful for private networks
     private: {
-       provider: () => provider,
+//       provider: () => provider,
+//       provider: () => hdProvider,
+//       provider: () => wsProvider,
+       provider: () => ipcProvider,
        network_id: 43,
        gasPrice: 0,
        gas: 6000000         // Ropsten has a lower block limit than mainnet
