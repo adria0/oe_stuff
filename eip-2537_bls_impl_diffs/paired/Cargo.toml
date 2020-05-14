@@ -1,0 +1,19 @@
+[package]
+name = "pairedtest"
+version = "0.1.0"
+authors = ["adria0 <adria@codecontext.io>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+paired = "0.19.1"
+rustc-hex = "2.1.0"
+groupy = "0.3.0"
+fff = { version = "0.2.0", features = ["derive"] }
+num-bigint = "0.2.6"
+criterion = "0.3.2"
+
+[[bench]]
+name = "eip2537"
+harness = false
