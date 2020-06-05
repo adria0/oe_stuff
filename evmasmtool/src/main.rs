@@ -219,19 +219,19 @@ impl EVMCodeGen {
         let mut tx = EVMCodeGen::new();
 
         // reserve data
-        tx.op_push(&[0x60]);
+        tx.op_push(&[0x80]);
         tx.op_push(&[0x40]);
         tx.op_mstore();
 
         // copy contract code to memory [] -> []
-        tx.op_push(&[0]);                   // mem destOffset
-        tx.push_data_segment("code");  // code offset
         tx.op_push(&[code.len() as u8]);    // code length
+        tx.push_data_segment("code");       // code offset
+        tx.op_push(&[0]);                   // mem destOffset
         tx.op_codecopy();
 
         // return memory offset + len
-        tx.op_push(&[0]);                   // mem destOffset
         tx.op_push(&[code.len() as u8]);    // code length
+        tx.op_push(&[0]);                   // mem destOffset
         tx.op_return();
 
         tx.op_stop();
@@ -250,6 +250,10 @@ fn main() {
 #[cfg(test)]
 mod test {
     use super::*;
+    use rustc_hex::FromHex;
+    use easycontract::{Account,EasyContract};
+    use web3::futures::Future;
+    use web3::types::*;
 
     fn unhex(data:&str) -> Vec<u8> {
         hex::decode(data).unwrap()
@@ -264,7 +268,7 @@ mod test {
                 .for_each(|ch| trimmed.push(ch));
         }
         assert_eq!(hex::encode(evmb.gen_code()),trimmed);
-    } 
+    }
 
     #[test]
     fn test_simple() {
@@ -357,7 +361,10 @@ mod test {
         let contract = unhex("005880808080305af1");
     
         let mut b = EVMCodeGen::new();
-        
+
+
+
+
         // copy contract code to memory [] -> []
         b.op_push(&[contract.len() as u8]); // code length
         b.push_data_segment("contract"); // code offset
@@ -387,7 +394,7 @@ mod test {
         b.op_call();
         b.op_jump("loop");
 
-        // define recursive contract        
+        // define recursive contract
         b.data_segment("contract",&contract);
         assert_eq!(hex::encode(b.gen_code()),"600962000026600039600960006000f06000525b600060006000600060006000515af1601356005880808080305af1");
     }
@@ -434,6 +441,80 @@ mod test {
         b.op_jumpdest("end");
         b.op_jumpsub("sub");
         assert_code_eq(&b,"6103ffb280600b57005b600190036003b31");
+    }
+
+    #[test]
+    fn test_install_code() {
+        let mut b = EVMCodeGen::new();
+        b.op_push(&[1]);
+        b.op_push(&[0x07,0xe0]);
+        b.op_sha3();
+        b.op_push(&[0]);
+        b.op_sstore();
+        b.op_stop();
+
+        assert_code_eq(&b,"6103ffb280600b57005b600190036003b31");
+
+
+    // do not let event loop goes out of scope!
+        let rpc_url = "https://rinkeby.infura.io/v3/";
+        let (eloop, transport) = web3::transports::Http::new(rpc_url)
+            .expect("cannot create web3 connector");
+        eloop.into_remote();
+        let web3 = web3::Web3::new(transport);
+
+        let account1  = Account::from_secret_key("");
+        let address = EasyContract::deploy(&web3, &account1, b.gen_tx_code(),U256::zero()).expect("cannot deploy contract");
+
+        assert_eq!("address",format!("{}",address));
+    }
+
+    #[test]
+    fn test_run_callcode_bigger_gas() {
+        let mut b = EVMCodeGen::new();
+
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0xff,0xff,0xff,0xff,0xff]);
+        b.op_staticcall();
+
+        assert_code_eq(&b,"aaaa");
+
+    }
+
+    #[test]
+    fn test_run_callcode_bigger_gas() {
+        let mut b = EVMCodeGen::new();
+
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0xff,0xff,0xff,0xff,0xff]);
+        b.op_staticcall();
+
+        assert_code_eq(&b,"aaaa");
+
+    }
+
+    #[test]
+    fn test_run_callcode_bigger_gas() {
+        let mut b = EVMCodeGen::new();
+
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0x0]);
+        b.op_push(&[0xff,0xff,0xff,0xff,0xff]);
+        b.op_staticcall();
+
+        assert_code_eq(&b,"aaaa");
+
     }
 
 }
