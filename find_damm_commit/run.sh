@@ -1,3 +1,6 @@
+# curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# sudo apt install build-essential llvm libssl-dev clang pkg-config
+
 if [ "$#" -lt 1 ]; then
     echo "Illegal number of parameters"
     exit
@@ -10,6 +13,6 @@ git checkout $1
 ( cd openethereum && cargo build --release --features=final )
 
 mkdir data
-openethereum/target/release/openethereum $OEARG -d data --log-file $COMMIT$OEARG.oe.log &
+openethereum/target/release/openethereum $OEARG -d data --log-file log.$COMMIT$OEARG.oe &
 PID=$!
-../oe_monitor/target/release/oe_monitor $PID > $COMMIT$OEARG.monitor.log &
+../oe_monitor/target/release/oe_monitor $PID > log.$COMMIT$OEARG.monitor &
