@@ -9,9 +9,9 @@ COMMIT=$1
 OEARG=$2
 ( cd ../oe_monitor && cargo build --release )
 git clone http://github.com/openethereum/openethereum
-git checkout $1
+( cd openethereum && git checkout $1 )
+read -p "Press enter to continue"
 ( cd openethereum && cargo build --release --features=final )
-
 mkdir data
 openethereum/target/release/openethereum $OEARG -d data --log-file log.$COMMIT$OEARG.oe &
 PID=$!

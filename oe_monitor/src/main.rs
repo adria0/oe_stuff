@@ -37,6 +37,17 @@ impl PeerCount {
     }
 }
 
+fn get_process_info(pid: u32) -> Result<(i64,i64,i64,i64)>{
+    let mut process_collector = ProcessCollector::new()?;
+
+    if let Some(process) =  process_collector.processes.get_mut(&pid) {
+        let process_mem_info = process.memory_info()?;
+        Ok((process.cpu_percent()? as i64,process_mem_info.rss() as i64,process_mem_info.vms() as i64, process.open_files()?.len() as i64))
+    } else {
+        Ok((-1 ,-1 ,-1 ,-1))
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
 
@@ -60,13 +71,7 @@ async fn main() -> Result<()> {
 
         time::delay_for(std::time::Duration::from_secs(5)).await;
 
-        let mut process_collector = ProcessCollector::new()?;
-        let (cpu,rss, vms, open_files) = if let Some(process) =  process_collector.processes.get_mut(&pid) {
-            let process_mem_info = process.memory_info()?;
-            (process.cpu_percent()? as i64,process_mem_info.rss() as i64,process_mem_info.vms() as i64, process.open_files()?.len() as i64)
-        } else {
-            (-1 ,-1 ,-1 ,-1)
-        };
+        let (cpu,rss, vms, open_files) = get_process_info(pid).unwrap_or((-1,-1,-1,-1));
 
         let peer_count = PeerCount::peer_count(rpc_url)
             .await
@@ -79,5 +84,4 @@ async fn main() -> Result<()> {
             peer_count
         );
     }
-
 }
