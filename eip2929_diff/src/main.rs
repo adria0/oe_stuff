@@ -9,14 +9,16 @@ fn read_file(path: &std::path::Path) -> Result<HashMap<String, (String, String)>
     let mut h = HashMap::new();
     let re = Regex::new(CAPTURE)?;
     let file = File::open(path)?;
+    let mut line_no = 1;
     for line in std::io::BufReader::new(file).lines() {
         let line = line?;
         let mut captures = re.captures_iter(&line);
-        let capture_1 = captures.next().expect("cannot parse line");
+        let capture_1 = captures.next().expect(&format!("cannot parse line {:?}:{}",path,line_no));
         let name = capture_1.get(1).unwrap().as_str().to_string();
         let got = capture_1.get(2).unwrap().as_str().to_string();
         let want = capture_1.get(3).unwrap().as_str().to_string();
         h.insert(name, (got, want));
+        line_no += 1;
     }
     Ok(h)
 }
@@ -78,8 +80,8 @@ where
 }
 
 fn main() -> Result<()> {
-    let oe_h = read_file(&Path::new("./log_oe"))?;
-    let geth_h = read_file(&Path::new("./log_geth"))?;
+    let oe_h = read_file(&Path::new("./2929_oe.log"))?;
+    let geth_h = read_file(&Path::new("./2929_geth.log"))?;
 
     let mut ok_count = 0;
     let mut fail_count = 0;
@@ -114,6 +116,8 @@ fn main() -> Result<()> {
         disjoint_only_in_geth_count
     );
     println!("root_mismatch_count={}", root_mismatch_count);
+
+//    println!("ony_in_oe {:#?}",only_oe);
 
     Ok(())
 }

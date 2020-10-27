@@ -5,7 +5,10 @@ use std::fs::File;
 use std::path::Path;
 use anyhow::Result;
 use std::io::BufRead;
-#[derive(Debug, PartialEq)]
+use tabular::{Table, Row};
+use std::borrow::Cow;
+
+#[derive(Clone, Debug, PartialEq)]
 struct U64Hex(u64);
 
 impl<'de> Deserialize<'de> for U64Hex {
@@ -32,6 +35,9 @@ struct EvmStep {
     op_name : String,
     pc: usize,
     stack: Vec<String>,
+    #[serde(rename = "gasCost")]
+    gas_cost: Option<U64Hex>,
+    error: Option<String>,
 }
 
 fn read_file(path: &std::path::Path) -> Result<Vec<EvmStep>> {
@@ -111,24 +117,55 @@ fn main() -> Result<()> {
     let first = read_file(first_file)?;
     let second = read_file(second_file)?;
 
+    let gas_diff = | v : &Vec<EvmStep>, n: usize| if n == 0 {
+        Cow::Borrowed("") 
+    } else {
+        if v[n].depth == v[n-1].depth {  
+            Cow::Owned(format!("{}",v[n].gas.0 as i64 - v[n-1].gas.0 as i64))
+        } else if v[n].depth < v[n-1].depth {
+            let mut diff = -1000;
+            for k in (0..=n-1).rev() {
+                if v[k].depth == v[n].depth {
+                    diff = v[n].gas.0 as i64 - v[k].gas.0 as i64;
+                    break;
+                }
+            }
+            Cow::Owned(format!("{}",diff))  
+        } else {
+            Cow::Borrowed("")
+        }
+    };
+
+    let mut table = Table::new("{:>} {:>} {:>}  {:<} {:>} {:>} {:>} {:<}     {:<}");
+    table.add_row(Row::new()
+        .with_cell("")
+        .with_cell("DEPTH")
+        .with_cell("PC")
+        .with_cell("OP")
+        .with_cell("GAS")
+        .with_cell("ΔGAS")
+        .with_cell("GCOST")
+        .with_cell("ERR")
+        .with_cell("STACK"));
+
     for n in 0..std::cmp::min(first.len(),second.len()) {
         let (f,s) = (&first[n], &second[n]);
         let mut diff = Vec::new();
         if f.pc != s.pc {
             diff.push(format!("pc=({},{})\n",f.pc,s.pc));
         }
-        if f.op_name != s.op_name {
+        if f.op != s.op {
             diff.push(format!("op=({},{})\n",f.op_name,s.op_name));
         }
         if f.depth != s.depth {
             diff.push(format!("depth=({},{})\n",f.depth,s.depth));
         }
         if f.gas.0 != s.gas.0 {
-            let f_gas_used = first[n-1].gas.0 - f.gas.0;
-            let s_gas_used = first[n-1].gas.0 - s.gas.0;
+            let f_gas_used = f.gas.0 as i64 - first[n-1].gas.0 as i64;
+            let s_gas_used = s.gas.0 as i64 - second[n-1].gas.0 as i64;
             
             diff.push(format!("gas_used=({},{}) diff={}",
-                f_gas_used, s_gas_used, f_gas_used as i64 - s_gas_used as i64));
+                f_gas_used, s_gas_used, f_gas_used - s_gas_used ));
         }
         for stackn in 0..std::cmp::max(f.stack.len(), s.stack.len())  {
             match (stackn < f.stack.len(), stackn < s.stack.len()) {
@@ -141,17 +178,49 @@ fn main() -> Result<()> {
         }
 
         if diff.len() > 0 {
+            table.add_row(Row::new()
+                .with_cell("F")
+                .with_cell(f.depth)
+                .with_cell(f.pc)
+                .with_cell(&f.op_name)
+                .with_cell(format!("{:?}",f.gas.0))
+                .with_cell(gas_diff(&first,n))
+                .with_cell(format!("{:?}",f.gas_cost.clone().unwrap().0))
+                .with_cell(format!("{}",f.error.as_ref().unwrap_or(&String::from(""))))
+                .with_cell(format!("{:?}",f.stack)));
+
+            table.add_row(Row::new()
+                .with_cell("S")
+                .with_cell(s.depth)
+                .with_cell(s.pc)
+                .with_cell(&s.op_name)
+                .with_cell(format!("{:?}",s.gas.0))
+                .with_cell(gas_diff(&second,n))
+                .with_cell(format!("-"))
+                .with_cell(format!("{}",s.error.as_ref().unwrap_or(&String::from(""))))
+                .with_cell(format!("{:?}",s.stack)));
+
+            println!("{}",table);
             println!("-------------------------------------------------------------");
-            println!("diff in PC=({},{})",f.pc,s.pc);
             println!("{}", diff.join("\n"));
             println!("FIRST  {}", f.original);
             println!("SECOND {}", s.original);
             println!("-------------------------------------------------------------");
-            return Ok(())
+            return Ok(());
         } else {
-            println!("{}",f.original);
+            table.add_row(Row::new()
+                .with_cell("=")
+                .with_cell(f.depth)
+                .with_cell(f.pc)
+                .with_cell(&f.op_name)
+                .with_cell(format!("{:?}",f.gas.0))
+                .with_cell(gas_diff(&first,n))
+                .with_cell(format!("{:?}",f.gas_cost.clone().unwrap().0))
+                .with_cell(format!("{}",f.error.as_ref().unwrap_or(&String::from(""))))
+                .with_cell(format!("{:?}",f.stack)));
         }
     }
+    println!("{}",table);
     println!("No diff.");
     Ok(())
 }
