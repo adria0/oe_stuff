@@ -5,10 +5,10 @@ authors = ["adria0 <adria@codecontext.io>"]
 edition = "2018"
 
 [dependencies]
-
-[dev-dependencies]
+anyhow = "1.0.33"
+rustc-hex = "2.1.0"
 hex = "0.4.2"
+clap = "2.33.3"
 web3 = "0.8.0"
 easycontract = { git = "https://github.com/adria0/ethworkshop-rustfest" }
-rustc-hex = "2.1.0"
-hex-literal = "0.2.1" 
+hex-literal = "0.2.1"

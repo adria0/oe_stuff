@@ -1,0 +1,39 @@
+            .contract
+            PC
+            DUP1
+            DUP1
+            DUP1
+            DUP1
+            ADDRESS
+            GAS
+            CALL
+            
+            .main
+            # copy contract code to memory [] -> []
+            PUSH contract.len  
+            PUSH contract.offset
+            PUSH 0x00  # mem destOffset
+            CODECOPY
+
+            # create contract [] -> [addr]
+            PUSH contract.len
+            PUSH 0x00 # mem offset
+            PUSH 0x00 # value
+            CREATE
+
+            # store contract address to memory[0..31] [addr] -> []
+            PUSH 0x00 #  [offset=0,value]
+            MSTORE
+
+            :loop
+              PUSH 0x00 # retLen
+              PUSH 0x00 # retOffset
+              PUSH 0x00 # argsLen
+              PUSH 0x00 # argsOffset
+              PUSH 0x00 # value
+              PUSH 0x00 # mload contract addr
+                MLOAD
+              GAS
+              CALL
+            JUMP loop
+
